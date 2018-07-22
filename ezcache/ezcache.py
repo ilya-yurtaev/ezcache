@@ -14,12 +14,6 @@ except ImportError:
 
 from functools import wraps, partial
 
-# from redis import StrictRedis
-
-# class RedisBackend(StrictRedis):
-#     def clear(self):
-#         return self.flushall()
-
 
 class DummyBackend(dict):
     # type: Dict[Hashable, Any]
