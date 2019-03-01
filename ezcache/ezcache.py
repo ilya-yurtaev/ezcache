@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from __future__ import unicode_literals
-from __future__ import absolute_import
 
 import inspect
 
@@ -21,6 +20,7 @@ class DummyBackend(dict):
     Backend instance must have implemented following methods:
     `get`, `set`, `clear`, `delete`, `delete_pattern` (optional)
     """
+
     def set(self, key, value, *args, **kwargs):
         super(DummyBackend, self).setdefault(key, value)
 
@@ -44,22 +44,17 @@ def get_func_defaults(f):
     except AttributeError:
         # py2
         sp = inspect.getargspec(f)
-        return dict(
-            zip(
-                reversed(sp.args or []),
-                reversed(sp.defaults or [])
-            )
-        )
+        return dict(zip(reversed(sp.args or []), reversed(sp.defaults or [])))
 
 
 def md5_key_builder(*args, **kwargs):
     # type: (*Any, **Dict[Hashable, Any]) -> str
     return md5(
         "".join(
-            list(map(str, args)) + [
-                "{}{}".format(k, v) for k, v in sorted(
-                    kwargs.items(), key=lambda x: x[0]
-                )
+            list(map(str, args))
+            + [
+                "{}{}".format(k, v)
+                for k, v in sorted(kwargs.items(), key=lambda x: x[0])
             ]
         ).encode("utf-8")
     ).hexdigest()
@@ -67,22 +62,25 @@ def md5_key_builder(*args, **kwargs):
 
 def qualname(f):
     # type: (Callable[[Any], Any]) -> str
-    return '.'.join([
-        f.__module__,
-        getattr(f, '__qualname__', None) or '.'.join(
-            [x for x in [
-                getattr(getattr(f, 'im_class', None), '__name__', None),
-                f.__name__,
-            ] if x]
-        ),
-    ])
+    return ".".join(
+        [
+            f.__module__,
+            getattr(f, "__qualname__", None)
+            or ".".join(
+                [
+                    x
+                    for x in [
+                        getattr(getattr(f, "im_class", None), "__name__", None),
+                        f.__name__,
+                    ]
+                    if x
+                ]
+            ),
+        ]
+    )
 
 
-def ezcache(
-        backend=DEFAULT_BACKEND,
-        key_builder=md5_key_builder,
-        timeout=None,
-):
+def ezcache(backend=DEFAULT_BACKEND, key_builder=md5_key_builder, timeout=None):
     # type: (Type, Callable[[Any], str], int) -> Any
 
     def decorator(f):
